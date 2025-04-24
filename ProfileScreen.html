@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中高齡人才平台 - 求職者檔案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .phone-container {
+            position: relative;
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 50px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 15px 20px rgba(0,0,0,0.15);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #f5f7fa;
+            border-radius: 40px;
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            width: 160px;
+            height: 30px;
+            background: #000;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 100;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            width: 140px;
+            height: 5px;
+            background: #000;
+            border-radius: 100px;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .header {
+            padding: 15px 20px;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-right: 16px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2C3E50;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 40px; /* 平衡兩側 */
+        }
+
+        .main-content {
+            height: calc(100% - 70px);
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            margin-bottom: 12px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #E2E8F0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2C3E50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit-button {
+            background: rgba(26, 82, 118, 0.1);
+            color: #1A5276;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #E2E8F0;
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1A5276 0%, #F39C12 100%);
+            border-radius: 100px;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(26, 82, 118, 0.1);
+            color: #1A5276;
+            border-radius: 100px;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .experience-card {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #1A5276;
+        }
+
+        .experience-card:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 18px;
+            bottom: -6px;
+            width: 2px;
+            background-color: #E2E8F0;
+        }
+
+        .bottom-actions {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px 20px;
+            background: linear-gradient(to top, rgba(245, 247, 250, 1) 60%, rgba(245, 247, 250, 0));
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-bottom: 12px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .btn-primary {
+            background-color: #1A5276;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: #F39C12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .scrolling-wrapper {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+
+        .scrolling-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrolling-card {
+            flex: 0 0 auto;
+            width: 280px;
+            margin-right: 12px;
+        }
+
+        .certificate-card {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .certificate-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(26, 82, 118, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(26, 82, 118, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(243, 156, 18, 0.2) 0%, transparent 50%);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 編輯按鈕功能
+            const editButtons = document.querySelectorAll('.edit-button');
+            
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const panel = this.closest('.glass-panel');
+                    
+                    // 顯示編輯成功提示
+                    showToast('已進入編輯模式');
+                    
+                    // 模擬編輯效果 - 僅作為示範
+                    panel.style.boxShadow = '0 0 0 3px rgba(26, 82, 118, 0.3)';
+                    setTimeout(() => {
+                        panel.style.boxShadow = '';
+                    }, 800);
+                });
+            });
+            
+            // 技能標籤點擊效果
+            const skillTags = document.querySelectorAll('.skill-tag');
+            
+            skillTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    if (this.classList.contains('active')) {
+                        this.style.backgroundColor = 'rgba(26, 82, 118, 0.3)';
+                    } else {
+                        this.style.backgroundColor = 'rgba(26, 82, 118, 0.1)';
+                    }
+                });
+            });
+            
+            // 底部按鈕效果
+            const actionButtons = document.querySelectorAll('.btn');
+            
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                    
+                    if (this.classList.contains('btn-primary')) {
+                        showToast('正在產生PDF檔案...');
+                    } else {
+                        showToast('分享選項已開啟');
+                    }
+                });
+            });
+            
+            // 頁面返回按鈕
+            const backButton = document.querySelector('.back-button');
+            
+            backButton.addEventListener('click', function() {
+                showToast('返回主頁面');
+            });
+            
+            // 證書點擊效果
+            const certCards = document.querySelectorAll('.certificate-card');
+            
+            certCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+            
+            // 工作經歷卡片水平滾動效果
+            const scrollingWrapper = document.querySelector('.scrolling-wrapper');
+            
+            if (scrollingWrapper) {
+                // 平滑滾動適配
+                scrollingWrapper.style.scrollBehavior = 'smooth';
+                
+                // 添加觸摸滑動功能
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                
+                scrollingWrapper.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    scrollingWrapper.style.cursor = 'grabbing';
+                    startX = e.pageX - scrollingWrapper.offsetLeft;
+                    scrollLeft = scrollingWrapper.scrollLeft;
+                });
+                
+                scrollingWrapper.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    scrollingWrapper.style.cursor = 'grab';
+                });
+                
+                scrollingWrapper.addEventListener('mouseup', () => {
+                    isDown = false;
+                    scrollingWrapper.style.cursor = 'grab';
+                });
+                
+                scrollingWrapper.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - scrollingWrapper.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    scrollingWrapper.scrollLeft = scrollLeft - walk;
+                });
+            }
+            
+            // 通用提示框功能
+            function showToast(message) {
+                // 如果已有通知則移除
+                const existingToast = document.querySelector('.toast-notification');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+                
+                // 創建新通知
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
+                toast.innerText = message;
+                
+                // 設置樣式
+                toast.style.position = 'fixed';
+                toast.style.bottom = '30px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.backgroundColor = 'rgba(44, 62, 80, 0.9)';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '50px';
+                toast.style.fontSize = '14px';
+                toast.style.fontWeight = '500';
+                toast.style.zIndex = '1000';
+                toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                toast.style.backdropFilter = 'blur(8px)';
+                toast.style.WebkitBackdropFilter = 'blur(8px)';
+                
+                // 添加到頁面
+                document.body.appendChild(toast);
+                
+                // 淡入效果
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                }, 10);
+                
+                // 3秒後淡出
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div class="phone-container">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            <div class="bg-pattern"></div>
+            
+            <!-- 頂部標題 -->
+            <div class="header">
+                <button class="back-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <h1 class="page-title">個人檔案</h1>
+            </div>
+            
+            <!-- 主要內容區域 -->
+            <div class="main-content">
+                <!-- 個人基本資料 -->
+                <div class="glass-panel mx-4">
+                    <div class="profile-header">
+                        <div class="avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="profile-info">
+                            <h2 class="text-xl font-bold text-gray-800">王大明</h2>
+                            <p class="text-gray-600">資深行政人員</p>
+                            <div class="mt-1 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-sm text-gray-500">台北市信義區</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="section-title">
+                            <span>檔案完整度</span>
+                            <span class="text-[#1A5276] font-bold">85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%;"></div>
+                        </div>
+                        <p class="text-gray-500 text-sm">完成推薦人資料以達到100%</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            <span class="text-gray-600">wang@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
+                            <span class="text-gray-600">0912-345-678</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 3a1 1 0 011-1h.01a1 1 0 010 2H7a1 1 0 01-1-1zm2 3a1 1 0 00-2 0v1a2 2 0 00-2 2v1a2 2 0 00-2 2v.683a3.7 3.7 0 011.055.485 1.704 1.704 0 001.89 0 3.704 3.704 0 014.11 0 1.704 1.704 0 001.89 0 3.704 3.704 0 014.11 0 1.704 1.704 0 001.89 0A3.7 3.7 0 0118 12.683V12a2 2 0 00-2-2V9a2 2 0 00-2-2V6a1 1 0 10-2 0v1h-1V6a1 1 0 10-2 0v1H8V6zm10 8.868a3.704 3.704 0 01-4.055-.036 1.704 1.704 0 00-1.89 0 3.704 3.704 0 01-4.11 0 1.704 1.704 0 00-1.89 0A3.704 3.704 0 012 14.868V17a1 1 0 001 1h14a1 1 0 001-1v-2.132zM9 3a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm3 0a1 1 0 011-1h.01a1 1 0 110 2H13a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-600">1970/03/15</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-600">男性</span>
+                        </div>
+                    </div>
+                    
+                    <button class="edit-button absolute top-4 right-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 個人簡介 -->
+                <div class="glass-panel mx-4">
+                    <div class="section-title">
+                        <span>個人簡介</span>
+                        <button class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-gray-700">
+                        擁有超過20年行政管理經驗，專長於人事管理、文書處理及會議安排。具備高度組織能力和溝通技巧，能有效協調跨部門合作。熟悉辦公室軟體操作，包括Word、Excel、PowerPoint及各類企業管理系統。希望能在穩定的環境中貢獻所長，並持續學習新技能。
+                    </p>
+                </div>
+                
+                <!-- 專業技能 -->
+                <div class="glass-panel mx-4">
+                    <div class="section-title">
+                        <span>專業技能</span>
+                        <button class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <span class="skill-tag">文書處理</span>
+                        <span class="skill-tag">檔案管理</span>
+                        <span class="skill-tag">簡報製作</span>
+                        <span class="skill-tag">人事行政</span>
+                        <span class="skill-tag">會議安排</span>
+                        <span class="skill-tag">顧客服務</span>
+                        <span class="skill-tag">辦公軟體</span>
+                        <span class="skill-tag">資料分析</span>
+                        <span class="skill-tag">人際溝通</span>
+                    </div>
+                </div>
+                
+                <!-- 工作經歷 -->
+                <div class="glass-panel mx-4">
+                    <div class="section-title">
+                        <span>工作經歷</span>
+                        <button class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="scrolling-wrapper">
+                        <div class="scrolling-card glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800">資深行政主管</h3>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">現職</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">台灣電信股份有限公司</p>
+                            <p class="text-gray-500 text-xs mb-3">2010/06 - 至今</p>
+                            <ul class="text-sm text-gray-700 list-disc pl-4 space-y-1">
+                                <li>主管行政部門，統籌公司行政事務</li>
+                                <li>負責人事管理，包含招聘、培訓與考核</li>
+                                <li>規劃與安排公司會議與活動</li>
+                                <li>協調各部門溝通與合作</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="scrolling-card glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800">行政專員</h3>
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">離職</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">台灣科技有限公司</p>
+                            <p class="text-gray-500 text-xs mb-3">2004/03 - 2010/05</p>
+                            <ul class="text-sm text-gray-700 list-disc pl-4 space-y-1">
+                                <li>處理日常行政事務與文件管理</li>
+                                <li>協助人事部門招聘與員工培訓</li>
+                                <li>安排主管行程與會議</li>
+                                <li>管理辦公室設備與用品採購</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="scrolling-card glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800">行政助理</h3>
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">離職</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">台北商業銀行</p>
+                            <p class="text-gray-500 text-xs mb-3">2000/09 - 2004/02</p>
+                            <ul class="text-sm text-gray-700 list-disc pl-4 space-y-1">
+                                <li>協助部門主管處理日常事務</li>
+                                <li>負責文件收發與檔案整理</li>
+                                <li>接待訪客與電話轉接</li>
+                                <li>準備會議資料與記錄會議紀要</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 學歷背景 -->
+                <div class="glass-panel mx-4">
+                    <div class="section-title">
+                        <span>學歷背景</span>
+                        <button class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="experience-card">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">企業管理系</h3>
+                            <p class="text-gray-600 text-sm">國立台灣大學</p>
+                            <p class="text-gray-500 text-xs mt-1">1996/09 - 2000/06</p>
+                        </div>
+                    </div>
+                    <div class="experience-card">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">商業科</h3>
+                            <p class="text-gray-600 text-sm">台北商業高級職業學校</p>
+                            <p class="text-gray-500 text-xs mt-1">1993/09 - 1996/06</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 證照/專業資格 -->
+                <div class="glass-panel mx-4">
+                    <div class="section-title">
+                        <span>證照與專業資格</span>
+                        <button class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="certificate-card">
+                        <div class="certificate-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#1A5276]" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">人力資源管理師證照</h3>
+                            <p class="text-gray-500 text-xs">2012年取得 | 中華人力資源協會</p>
+                        </div>
+                    </div>
+                    <div class="certificate-card">
+                        <div class="certificate-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#1A5276]" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.20l.8 2.6a1 1 0 11-.95.32l-.85-2.81L6.8 7.8a1 1 0 01-.9-.32L6.7 5H5a1 1 0 110-2h2V3a1 1 0 011-1zm0 9a1 1 0 011 1v1h5a1 1 0 110 2h-5v1a1 1 0 11-2 0v-1H4a1 1 0 110-2h2v-1a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">企業內部控制師</h3>
+                            <p class="text-gray-500 text-xs">2015年取得 | 台灣金融研訓院</p>
+                        </div>
+                    </div>
+                    <div class="certificate-card">
+                        <div class="certificate-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#1A5276]" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">TOEIC 785分</h3>
+                            <p class="text-gray-500 text-xs">2018年取得 | ETS台灣區代表</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 底部功能按鈕 -->
+            <div class="bottom-actions">
+                <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                    </svg>
+                    產生PDF履歷
+                </button>
+                <button class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                    </svg>
+                    分享我的檔案
+                </button>
+            </div>
+            
+            <div class="phone-home-indicator"></div>
+        </div>
+    </div>
+</body>
+</html> 

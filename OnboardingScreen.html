@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中高齡人才平台 - 歡迎引導頁</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .phone-container {
+            position: relative;
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 50px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 15px 20px rgba(0,0,0,0.15);
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 40px;
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            width: 160px;
+            height: 30px;
+            background: #000;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 100;
+        }
+
+        .phone-home-indicator {
+            position: absolute;
+            width: 140px;
+            height: 5px;
+            background: #000;
+            border-radius: 100px;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .onboarding-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .onboarding-slides {
+            display: flex;
+            width: 400%;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+
+        .onboarding-slide {
+            width: 25%;
+            height: 100%;
+            flex-shrink: 0;
+            padding: 60px 20px 80px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-progress {
+            position: absolute;
+            bottom: 100px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 30px;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 6px 12px;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #D9D9D9;
+            transition: background-color 0.3s;
+        }
+
+        .progress-dot.active {
+            background-color: #1A5276;
+            width: 24px;
+            border-radius: 12px;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.2s;
+            width: 100%;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .skip-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 16px;
+            color: #2C3E50;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .role-card {
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .role-card:active {
+            transform: translateY(3px);
+            box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+        }
+
+        .illustration {
+            height: 200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .illustration img {
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="phone-container">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            <div class="onboarding-container">
+                <button class="skip-btn" id="skipButton">跳過</button>
+                
+                <div class="onboarding-slides" id="slides">
+                    <!-- 第一頁：歡迎頁 -->
+                    <div class="onboarding-slide bg-gradient-to-b from-[#1A5276] to-[#2874A6]">
+                        <div class="flex flex-col justify-center items-center flex-1 text-white">
+                            <div class="illustration floating">
+                                <svg width="180" height="180" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="100" cy="100" r="90" fill="#F39C12" fill-opacity="0.3"/>
+                                    <circle cx="100" cy="100" r="70" fill="#F39C12" fill-opacity="0.6"/>
+                                    <path d="M100 50V150M50 100H150" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h1 class="text-4xl font-bold mb-4 text-center">耆績非凡</h1>
+                            <p class="text-xl text-center mb-8 opacity-90">中高齡人才與企業的最佳橋樑</p>
+                            <p class="text-center opacity-75">滑動了解更多</p>
+                        </div>
+                    </div>
+
+                    <!-- 第二頁：中高齡求職者價值 -->
+                    <div class="onboarding-slide bg-white">
+                        <div class="flex-1 flex flex-col">
+                            <h2 class="text-3xl font-bold mb-4 text-[#1A5276]">專為中高齡求職者設計</h2>
+                            <div class="illustration floating">
+                                <svg width="180" height="180" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="40" y="60" width="120" height="80" rx="10" fill="#F39C12" fill-opacity="0.2"/>
+                                    <rect x="60" y="80" width="80" height="10" rx="5" fill="#1A5276"/>
+                                    <rect x="60" y="100" width="60" height="10" rx="5" fill="#1A5276"/>
+                                    <rect x="60" y="120" width="40" height="10" rx="5" fill="#1A5276"/>
+                                    <circle cx="160" cy="50" r="15" fill="#F39C12"/>
+                                </svg>
+                            </div>
+                            <div class="space-y-4 mt-auto glass-panel">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#F39C12] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">精準職位匹配</p>
+                                        <p class="text-gray-600 text-sm">依據您的經驗與技能，推薦最適合的工作機會</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#F39C12] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">豐富資源中心</p>
+                                        <p class="text-gray-600 text-sm">提供求職技巧、面試準備與政府補助資訊</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#F39C12] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">友善使用體驗</p>
+                                        <p class="text-gray-600 text-sm">簡潔易用的介面設計，讓您輕鬆上手</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第三頁：企業招聘優勢 -->
+                    <div class="onboarding-slide bg-white">
+                        <div class="flex-1 flex flex-col">
+                            <h2 class="text-3xl font-bold mb-4 text-[#1A5276]">協助企業解決缺工危機</h2>
+                            <div class="illustration floating">
+                                <svg width="180" height="180" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="30" y="80" width="50" height="80" rx="5" fill="#1A5276" fill-opacity="0.7"/>
+                                    <rect x="90" y="60" width="50" height="100" rx="5" fill="#1A5276"/>
+                                    <rect x="150" y="100" width="30" height="60" rx="5" fill="#1A5276" fill-opacity="0.5"/>
+                                    <circle cx="50" cy="60" r="15" fill="#F39C12"/>
+                                    <circle cx="150" cy="80" r="10" fill="#F39C12" fill-opacity="0.7"/>
+                                </svg>
+                            </div>
+                            <div class="space-y-4 mt-auto glass-panel">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#1A5276] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">經驗豐富的人才庫</p>
+                                        <p class="text-gray-600 text-sm">獲取具有豐富經驗的中高齡人才</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#1A5276] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">簡化招聘流程</p>
+                                        <p class="text-gray-600 text-sm">有效減少招聘時間，提高匹配精準度</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-[#1A5276] text-white p-2 rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-[#2C3E50]">政府補助資源</p>
+                                        <p class="text-gray-600 text-sm">一站式獲取壯世代就業獎勵相關資訊</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第四頁：角色選擇 -->
+                    <div class="onboarding-slide bg-[#F5F7FA]">
+                        <div class="flex-1 flex flex-col">
+                            <div class="glass-panel mb-6 rounded-2xl">
+                                <h2 class="text-3xl font-bold text-center mb-2 text-[#1A5276]">請選擇您的角色</h2>
+                                <p class="text-center text-gray-500">依據您的需求，開始專屬體驗</p>
+                            </div>
+                            
+                            <div class="space-y-4 mt-4">
+                                <div class="role-card bg-opacity-80 border-2 border-[#1A5276]" id="seekerCard">
+                                    <div class="w-20 h-20 mb-4 rounded-full bg-[#1A5276] bg-opacity-10 flex items-center justify-center backdrop-blur-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#1A5276]" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-[#1A5276] mb-2">我是求職者</h3>
+                                    <p class="text-gray-500 text-center">尋找適合的工作機會與資源</p>
+                                </div>
+                                
+                                <div class="role-card bg-opacity-80 border-2 border-[#F39C12]" id="employerCard">
+                                    <div class="w-20 h-20 mb-4 rounded-full bg-[#F39C12] bg-opacity-10 flex items-center justify-center backdrop-blur-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#F39C12]" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-[#F39C12] mb-2">我是企業</h3>
+                                    <p class="text-gray-500 text-center">尋找經驗豐富的優質人才</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slide-progress">
+                    <div class="progress-dot active" data-slide="0"></div>
+                    <div class="progress-dot" data-slide="1"></div>
+                    <div class="progress-dot" data-slide="2"></div>
+                    <div class="progress-dot" data-slide="3"></div>
+                </div>
+                
+                <button class="btn text-white bg-[#1A5276] bg-opacity-85 absolute bottom-20 left-1/2 transform -translate-x-1/2 w-[80%]" id="nextButton">繼續</button>
+            </div>
+            <div class="phone-home-indicator"></div>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.getElementById('slides');
+        const nextButton = document.getElementById('nextButton');
+        const skipButton = document.getElementById('skipButton');
+        const progressDots = document.querySelectorAll('.progress-dot');
+        const seekerCard = document.getElementById('seekerCard');
+        const employerCard = document.getElementById('employerCard');
+        
+        let currentSlide = 0;
+        const totalSlides = 4;
+
+        // 更新進度點和滑動
+        function updateSlide() {
+            slides.style.transform = `translateX(-${currentSlide * 25}%)`;
+            
+            // 更新進度點
+            progressDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+            
+            // 更新按鈕文字
+            if (currentSlide === totalSlides - 1) {
+                nextButton.style.display = 'none';
+            } else {
+                nextButton.style.display = 'flex';
+                nextButton.textContent = '繼續';
+            }
+            
+            // 隱藏最後一頁的跳過按鈕
+            skipButton.style.display = currentSlide === totalSlides - 1 ? 'none' : 'block';
+        }
+
+        // 下一頁按鈕
+        nextButton.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        // 跳過按鈕（直接到角色選擇頁）
+        skipButton.addEventListener('click', () => {
+            currentSlide = totalSlides - 1;
+            updateSlide();
+        });
+
+        // 進度點點擊
+        progressDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateSlide();
+            });
+        });
+
+        // 角色卡片點擊
+        seekerCard.addEventListener('click', () => {
+            // 在實際應用中跳轉到求職者註冊頁面
+            alert('前往求職者註冊頁面');
+        });
+
+        employerCard.addEventListener('click', () => {
+            // 在實際應用中跳轉到企業註冊頁面
+            alert('前往企業註冊頁面');
+        });
+
+        // 允許滑動功能
+        let startX;
+        let isDragging = false;
+
+        slides.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        slides.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const currentX = e.touches[0].clientX;
+            const diff = startX - currentX;
+            
+            // 防止過度滑動
+            if ((currentSlide === 0 && diff < 0) || 
+                (currentSlide === totalSlides - 1 && diff > 0)) {
+                return;
+            }
+            
+            // 計算滑動距離的百分比
+            const slideWidth = slides.offsetWidth / totalSlides;
+            const movePercent = (diff / slideWidth) * 25;
+            
+            // 應用變換但有限制
+            const translateValue = -currentSlide * 25 - movePercent;
+            slides.style.transform = `translateX(${translateValue}%)`;
+        });
+
+        slides.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            
+            // 如果滑動距離超過屏幕寬度的15%，則切換幻燈片
+            if (Math.abs(diff) > slides.offsetWidth * 0.15) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                } else if (diff < 0 && currentSlide > 0) {
+                    currentSlide--;
+                }
+            }
+            
+            updateSlide();
+        });
+
+        // 初始化
+        updateSlide();
+    </script>
+</body>
+</html> 

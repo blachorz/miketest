@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中高齡人才平台 - 職位詳情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #333;
+        }
+        
+        .job-header {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+        }
+        
+        .section-divider {
+            height: 8px;
+            background-color: #f3f4f6;
+        }
+        
+        .qualification-item {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .qualification-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+        }
+        
+        .share-actions {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: -100%;
+            background-color: white;
+            border-radius: 16px 16px 0 0;
+            transition: bottom 0.3s;
+            z-index: 50;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .share-actions.show {
+            bottom: 0;
+        }
+        
+        .share-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .share-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            padding: 12px;
+        }
+        
+        .share-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        
+        .similar-job-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        
+        .similar-job-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .btn-apply {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            transition: all 0.2s;
+        }
+        
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        .company-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="max-w-lg mx-auto bg-white min-h-screen flex flex-col pb-24">
+        <!-- 頂部導航 -->
+        <header class="sticky top-0 z-20 bg-white">
+            <div class="flex items-center p-4 border-b">
+                <button class="p-2 rounded-full hover:bg-gray-100" id="backButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+                <h1 class="text-lg font-bold text-center flex-1">職位詳情</h1>
+                <button class="p-2 rounded-full hover:bg-gray-100" id="shareButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 職位基本資訊 -->
+        <section class="job-header p-4 border-b">
+            <div class="flex items-start">
+                <div class="mr-4 bg-white p-2 rounded-lg shadow-sm border border-gray-100">
+                    <img src="https://via.placeholder.com/60" alt="公司logo" class="w-14 h-14 object-contain">
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-gray-900">資深行政專員</h2>
+                    <p class="text-blue-600 font-medium">台灣大企業股份有限公司</p>
+                    <div class="flex items-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-500 text-sm">台北市信義區</span>
+                    </div>
+                    <div class="mt-3 flex items-center">
+                        <span class="inline-block bg-blue-50 text-blue-700 text-sm px-3 py-1 rounded-full font-medium">月薪 4.5-6 萬</span>
+                    </div>
+                </div>
+                <button class="ml-2 p-2 rounded-full hover:bg-blue-50" id="favoriteButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mt-4 flex flex-wrap gap-2">
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">全職工作</span>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">週休二日</span>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">辦公室工作</span>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">5年以上經驗</span>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">專業人士</span>
+            </div>
+            
+            <div class="mt-4 flex justify-between text-sm text-gray-500">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    刊登日期: 2023/10/25
+                </div>
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    瀏覽人數: 328
+                </div>
+            </div>
+        </section>
+
+        <!-- 職位描述 -->
+        <div class="section-divider"></div>
+        <section class="p-4 border-b">
+            <h3 class="text-lg font-bold mb-3">職位描述</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                我們正在尋找一位經驗豐富的資深行政專員，協助公司管理日常行政事務，維持辦公室運作順暢，並支援各部門行政需求。您將成為連結各部門的重要橋樑，為公司整體效率提升做出貢獻。
+            </p>
+            
+            <h4 class="font-bold text-gray-800 mb-2">工作內容：</h4>
+            <ul class="pl-5 mb-4 space-y-2">
+                <li class="qualification-item">協調公司各部門行政事務，確保工作流程順暢</li>
+                <li class="qualification-item">管理辦公室日常運作，包括設備維護、文具採購等</li>
+                <li class="qualification-item">安排公司會議與活動，準備會議資料與記錄</li>
+                <li class="qualification-item">處理公司文件檔案，建立有效的文件管理系統</li>
+                <li class="qualification-item">協助人事部門進行員工資料管理與考勤統計</li>
+                <li class="qualification-item">支援主管安排行程，預訂差旅住宿與交通</li>
+                <li class="qualification-item">接待訪客，提供專業且熱情的服務</li>
+            </ul>
+            
+            <h4 class="font-bold text-gray-800 mb-2">工作條件與福利：</h4>
+            <ul class="pl-5 mb-4 space-y-2">
+                <li class="qualification-item">週休二日，週一至週五 9:00-18:00</li>
+                <li class="qualification-item">享有勞保、健保、團保</li>
+                <li class="qualification-item">年終獎金、三節禮金/禮品</li>
+                <li class="qualification-item">每年健康檢查</li>
+                <li class="qualification-item">員工教育訓練</li>
+                <li class="qualification-item">特休假、婚假、喪假、產假/陪產假</li>
+                <li class="qualification-item">員工旅遊與聚餐</li>
+            </ul>
+        </section>
+
+        <!-- 職位要求 -->
+        <div class="section-divider"></div>
+        <section class="p-4 border-b">
+            <h3 class="text-lg font-bold mb-3">職位要求</h3>
+            
+            <h4 class="font-bold text-gray-800 mb-2">基本條件：</h4>
+            <ul class="pl-5 mb-4 space-y-2">
+                <li class="qualification-item">大學以上學歷，行政管理相關科系尤佳</li>
+                <li class="qualification-item">5年以上行政工作經驗，2年以上資深行政或管理經驗</li>
+                <li class="qualification-item">熟悉辦公室軟體操作，如Word、Excel、PowerPoint</li>
+                <li class="qualification-item">具備良好溝通協調能力與團隊合作精神</li>
+                <li class="qualification-item">辦事細心，具高度組織能力與時間管理能力</li>
+            </ul>
+            
+            <h4 class="font-bold text-gray-800 mb-2">加分條件：</h4>
+            <ul class="pl-5 mb-4 space-y-2">
+                <li class="qualification-item">具中英文書信撰寫能力</li>
+                <li class="qualification-item">具備人事或會計相關知識</li>
+                <li class="qualification-item">曾使用企業資源規劃系統(ERP)或文件管理系統</li>
+                <li class="qualification-item">持有相關專業證照，如TOEIC證書、國際專業秘書證照等</li>
+            </ul>
+        </section>
+
+        <!-- 公司資訊 -->
+        <div class="section-divider"></div>
+        <section class="p-4 border-b">
+            <h3 class="text-lg font-bold mb-3">公司資訊</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="flex items-center mb-3">
+                    <img src="https://via.placeholder.com/50" alt="公司logo" class="w-12 h-12 mr-3 object-contain">
+                    <div>
+                        <h4 class="font-bold text-gray-900">台灣大企業股份有限公司</h4>
+                        <p class="text-sm text-gray-500">科技服務業</p>
+                    </div>
+                </div>
+                <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                    台灣大企業股份有限公司成立於1990年，是台灣領先的企業管理系統解決方案提供商，為各行各業提供專業的管理軟體與服務，員工人數超過500人，總部位於台北市信義區。
+                </p>
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <div class="flex items-center text-xs bg-white px-2 py-1 rounded border border-gray-200">
+                        <span class="company-badge">規</span>
+                        <span>500-1000人</span>
+                    </div>
+                    <div class="flex items-center text-xs bg-white px-2 py-1 rounded border border-gray-200">
+                        <span class="company-badge">創</span>
+                        <span>1990年成立</span>
+                    </div>
+                    <div class="flex items-center text-xs bg-white px-2 py-1 rounded border border-gray-200">
+                        <span class="company-badge">資</span>
+                        <span>上市公司</span>
+                    </div>
+                </div>
+                <button class="text-blue-600 text-sm font-medium flex items-center">
+                    查看公司詳情
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- 類似職位 -->
+        <div class="section-divider"></div>
+        <section class="p-4">
+            <h3 class="text-lg font-bold mb-3">類似職位</h3>
+            
+            <div class="space-y-3">
+                <a href="#" class="similar-job-card block p-3 bg-white">
+                    <div class="flex justify-between mb-1">
+                        <h4 class="font-bold text-gray-800">資深行政助理</h4>
+                        <span class="text-red-500 font-medium">月薪4-5萬</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">品牌管理顧問公司</p>
+                    <div class="flex items-center mt-1 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-500 text-xs">台北市內湖區</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">全職</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">3年以上</span>
+                    </div>
+                </a>
+
+                <a href="#" class="similar-job-card block p-3 bg-white">
+                    <div class="flex justify-between mb-1">
+                        <h4 class="font-bold text-gray-800">行政經理</h4>
+                        <span class="text-red-500 font-medium">月薪6-7萬</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">國際貿易集團</p>
+                    <div class="flex items-center mt-1 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-500 text-xs">台北市大安區</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">全職</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">8年以上</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">主管職</span>
+                    </div>
+                </a>
+
+                <a href="#" class="similar-job-card block p-3 bg-white">
+                    <div class="flex justify-between mb-1">
+                        <h4 class="font-bold text-gray-800">人事行政專員</h4>
+                        <span class="text-red-500 font-medium">月薪4-5萬</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">台灣科技股份有限公司</p>
+                    <div class="flex items-center mt-1 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-500 text-xs">新北市板橋區</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">全職</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">3年以上</span>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">人事</span>
+                    </div>
+                </a>
+            </div>
+            
+            <button class="w-full mt-4 py-2 text-blue-600 border border-blue-600 rounded-lg text-center font-medium">
+                查看更多相似職位
+            </button>
+        </section>
+
+        <!-- 底部應徵按鈕 -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex items-center justify-between z-10 max-w-lg mx-auto">
+            <button class="flex-1 py-3 btn-apply text-white rounded-lg font-medium text-center flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd" />
+                </svg>
+                立即應徵
+            </button>
+        </div>
+
+        <!-- 分享選項底部彈出視窗 -->
+        <div class="share-overlay" id="shareOverlay"></div>
+        <div class="share-actions p-4" id="shareActions">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">分享職位</h3>
+                <button class="p-2 rounded-full hover:bg-gray-100" id="closeShareButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex justify-around">
+                <div class="share-option">
+                    <div class="share-icon bg-green-100 text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm">LINE</span>
+                </div>
+                
+                <div class="share-option">
+                    <div class="share-icon bg-blue-100 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm">Email</span>
+                </div>
+                
+                <div class="share-option">
+                    <div class="share-icon bg-blue-100 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm">更多</span>
+                </div>
+            </div>
+            
+            <div class="mt-6 mb-2">
+                <h4 class="text-sm font-medium mb-2">複製連結</h4>
+                <div class="flex">
+                    <input type="text" value="https://senior-job.example.com/job/123456" readonly class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-sm focus:outline-none">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-r-lg text-sm font-medium" id="copyLinkButton">複製</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 分享功能
+        const shareButton = document.getElementById('shareButton');
+        const shareActions = document.getElementById('shareActions');
+        const shareOverlay = document.getElementById('shareOverlay');
+        const closeShareButton = document.getElementById('closeShareButton');
+        const copyLinkButton = document.getElementById('copyLinkButton');
+        const favoriteButton = document.getElementById('favoriteButton');
+        const backButton = document.getElementById('backButton');
+        
+        // 打開分享選項
+        shareButton.addEventListener('click', function() {
+            shareActions.classList.add('show');
+            shareOverlay.classList.add('show');
+        });
+        
+        // 關閉分享選項
+        function closeShareOptions() {
+            shareActions.classList.remove('show');
+            shareOverlay.classList.remove('show');
+        }
+        
+        closeShareButton.addEventListener('click', closeShareOptions);
+        shareOverlay.addEventListener('click', closeShareOptions);
+        
+        // 複製連結
+        copyLinkButton.addEventListener('click', function() {
+            const linkInput = this.previousElementSibling;
+            linkInput.select();
+            document.execCommand('copy');
+            
+            // 顯示已複製提示
+            this.textContent = '已複製';
+            this.classList.remove('bg-blue-600');
+            this.classList.add('bg-green-600');
+            
+            // 2秒後恢復原樣
+            setTimeout(() => {
+                this.textContent = '複製';
+                this.classList.remove('bg-green-600');
+                this.classList.add('bg-blue-600');
+            }, 2000);
+        });
+        
+        // 收藏功能
+        favoriteButton.addEventListener('click', function() {
+            const svg = this.querySelector('svg');
+            
+            if (svg.classList.contains('text-gray-400')) {
+                // 加入收藏
+                svg.classList.remove('text-gray-400');
+                svg.classList.add('text-red-500');
+                svg.setAttribute('fill', 'currentColor');
+                
+                // 顯示收藏成功提示
+                showToast('已加入收藏');
+            } else {
+                // 取消收藏
+                svg.classList.remove('text-red-500');
+                svg.classList.add('text-gray-400');
+                svg.setAttribute('fill', 'none');
+                
+                // 顯示取消收藏提示
+                showToast('已取消收藏');
+            }
+        });
+        
+        // 返回按鈕
+        backButton.addEventListener('click', function() {
+            window.history.back();
+        });
+        
+        // 顯示提示訊息
+        function showToast(message) {
+            // 檢查是否已有提示訊息
+            let toast = document.querySelector('.toast-message');
+            if (toast) {
+                toast.remove();
+            }
+            
+            // 創建提示訊息元素
+            toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.innerText = message;
+            
+            // 設定樣式
+            toast.style.position = 'fixed';
+            toast.style.bottom = '90px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            toast.style.color = 'white';
+            toast.style.padding = '8px 16px';
+            toast.style.borderRadius = '20px';
+            toast.style.fontSize = '14px';
+            toast.style.zIndex = '100';
+            
+            // 加入頁面
+            document.body.appendChild(toast);
+            
+            // 2秒後移除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 2000);
+        }
+        
+        // 處理立即應徵按鈕點擊
+        document.querySelector('.btn-apply').addEventListener('click', function() {
+            // 這裡實際應用中會導向應徵頁面或打開應徵表單
+            showToast('正在前往應徵頁面...');
+        });
+    </script>
+</body>
+</html> 

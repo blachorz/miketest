@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中高齡人才平台 - 職位搜尋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 基本樣式 */
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #333;
+        }
+        
+        /* 篩選側邊欄樣式 */
+        .filter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            display: none;
+        }
+        
+        .filter-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            height: 100%;
+            background-color: white;
+            z-index: 51;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-sidebar.open {
+            right: 0;
+        }
+        
+        /* 自定義滑動選擇器 */
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            position: relative;
+            margin: 30px 0;
+        }
+        
+        .range-progress {
+            position: absolute;
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 3px;
+        }
+        
+        .range-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 篩選標籤選擇樣式 */
+        .filter-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 100px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .filter-tag.active {
+            background-color: #dbeafe;
+            color: #2563eb;
+            border-color: #93c5fd;
+        }
+        
+        /* 地區選擇器樣式 */
+        .location-accordion {
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .location-header {
+            padding: 12px 16px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .location-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .location-content.open {
+            max-height: 300px;
+        }
+        
+        /* 篩選條件選擇樣式 */
+        .checkbox-custom {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        
+        .checkbox-custom input {
+            display: none;
+        }
+        
+        .checkbox-indicator {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-custom input:checked + .checkbox-indicator {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        .checkbox-custom input:checked + .checkbox-indicator:after {
+            content: '';
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        /* 搜尋建議樣式 */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+        
+        .search-suggestions.active {
+            max-height: 300px;
+        }
+        
+        .suggestion-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    <div class="max-w-md mx-auto bg-white min-h-screen flex flex-col">
+        <!-- 頂部搜尋區域 -->
+        <header class="sticky top-0 z-10 bg-white shadow-sm">
+            <div class="flex items-center p-4 border-b">
+                <button class="p-2 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold text-center flex-1 mr-8">職位搜尋</h1>
+            </div>
+            
+            <!-- 搜尋欄 -->
+            <div class="p-4">
+                <div class="relative">
+                    <input type="text" placeholder="搜尋職位、公司或關鍵字" class="w-full py-3 px-4 pr-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 篩選選項 -->
+            <div class="p-2 overflow-x-auto flex items-center space-x-2 border-b scrollbar-hide">
+                <button class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm whitespace-nowrap flex items-center border border-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
+                    </svg>
+                    篩選條件
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap">
+                    全職工作
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap">
+                    兼職工作
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap">
+                    遠端工作
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap">
+                    週休二日
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap">
+                    彈性上班
+                </button>
+            </div>
+        </header>
+
+        <!-- 主要內容區 -->
+        <main class="flex-1 overflow-y-auto bg-gray-50">
+            <!-- 快速篩選分類 -->
+            <section class="p-4 bg-white mb-2 border-b">
+                <h2 class="text-lg font-medium mb-3">熱門職業類別</h2>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">行政</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">業務</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">會計</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">資訊</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">銷售</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">客服</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">製造</p>
+                    </div>
+                    <div class="p-2">
+                        <div class="bg-blue-50 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                            </svg>
+                        </div>
+                        <p class="text-xs">更多</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 推薦職位 -->
+            <section class="p-4 bg-white mb-2 border-b">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-medium">為您推薦</h2>
+                    <button class="text-sm text-blue-600">查看全部</button>
+                </div>
+                
+                <!-- 推薦職位卡片 -->
+                <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100 relative">
+                    <div class="absolute top-3 right-3 bg-yellow-500 text-white text-xs px-2 py-1 rounded">熱門</div>
+                    <div class="flex items-start">
+                        <div class="mr-3 bg-white p-2 rounded-lg border border-gray-200">
+                            <img src="https://via.placeholder.com/50" alt="公司logo" class="w-12 h-12 object-contain">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-800">資深行政專員</h3>
+                            <p class="text-gray-600 text-sm">台灣大企業股份有限公司</p>
+                            <p class="text-gray-500 text-xs mt-1">台北市信義區</p>
+                            <div class="mt-2">
+                                <span class="inline-block bg-white text-blue-600 text-xs px-2 py-1 rounded mr-1 border border-blue-100">月薪 4.5-6 萬</span>
+                                <span class="inline-block bg-white text-blue-600 text-xs px-2 py-1 rounded mr-1 border border-blue-100">專業人才</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-blue-100 flex justify-between items-center">
+                        <div class="text-xs text-gray-500">刊登日期: 2023/10/25</div>
+                        <button class="text-blue-600 text-sm font-medium">立即應徵</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg mb-4 border border-gray-200">
+                    <div class="flex items-start">
+                        <div class="mr-3 bg-gray-100 p-2 rounded-lg">
+                            <img src="https://via.placeholder.com/50" alt="公司logo" class="w-12 h-12 object-contain">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-800">顧客服務專員</h3>
+                            <p class="text-gray-600 text-sm">台灣服務公司</p>
+                            <p class="text-gray-500 text-xs mt-1">新北市板橋區</p>
+                            <div class="mt-2">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mr-1">月薪 3.5-4.5 萬</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mr-1">週休二日</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                        <div class="text-xs text-gray-500">刊登日期: 2023/10/24</div>
+                        <button class="text-blue-600 text-sm font-medium">立即應徵</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 最新職位列表 -->
+            <section class="bg-white">
+                <div class="p-4 border-b">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-medium">最新職缺</h2>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span>排序:</span>
+                            <select class="ml-2 border-none bg-transparent text-blue-600 font-medium focus:outline-none text-sm">
+                                <option>最相關</option>
+                                <option>最新</option>
+                                <option>薪資高至低</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 職位項目 -->
+                <div class="border-b">
+                    <a href="#" class="block p-4 hover:bg-gray-50">
+                        <div class="flex justify-between mb-2">
+                            <h3 class="font-bold text-gray-800">業務開發經理</h3>
+                            <span class="text-red-500 font-bold">月薪5-7萬</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">台灣業務拓展公司</p>
+                        <div class="flex items-center mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-500 text-xs">台北市中山區</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap">
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">5年以上經驗</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">國外業務</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">英文流利</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="border-b">
+                    <a href="#" class="block p-4 hover:bg-gray-50">
+                        <div class="flex justify-between mb-2">
+                            <h3 class="font-bold text-gray-800">人資專員</h3>
+                            <span class="text-red-500 font-bold">月薪4-5萬</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">台灣科技集團</p>
+                        <div class="flex items-center mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-500 text-xs">台北市南港區</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap">
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">3年以上經驗</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">人資相關證照</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">福利佳</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="border-b">
+                    <a href="#" class="block p-4 hover:bg-gray-50">
+                        <div class="flex justify-between mb-2">
+                            <h3 class="font-bold text-gray-800">財務會計主管</h3>
+                            <span class="text-red-500 font-bold">月薪6-8萬</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">企業財務管理顧問公司</p>
+                        <div class="flex items-center mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-500 text-xs">台北市大安區</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap">
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">8年以上經驗</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">會計師證照</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">企業上市輔導</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="border-b">
+                    <a href="#" class="block p-4 hover:bg-gray-50">
+                        <div class="flex justify-between mb-2">
+                            <h3 class="font-bold text-gray-800">行銷企劃經理</h3>
+                            <span class="text-red-500 font-bold">月薪5-6萬</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">台灣行銷公司</p>
+                        <div class="flex items-center mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-500 text-xs">台北市松山區</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap">
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">5年以上經驗</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">數位行銷</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1">品牌管理</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="p-4 flex justify-center">
+                    <button class="w-full py-3 border border-blue-500 text-blue-500 rounded-lg text-center font-medium">
+                        載入更多職缺
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部導航 -->
+        <footer class="bg-white border-t py-2 sticky bottom-0">
+            <div class="flex justify-around items-center">
+                <a href="#" class="flex flex-col items-center px-3 py-2 text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span class="text-xs mt-1">搜尋</span>
+                </a>
+                <a href="#" class="flex flex-col items-center px-3 py-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span class="text-xs mt-1">應徵</span>
+                </a>
+                <a href="#" class="flex flex-col items-center px-3 py-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span class="text-xs mt-1">收藏</span>
+                </a>
+                <a href="#" class="flex flex-col items-center px-3 py-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-xs mt-1">數據</span>
+                </a>
+                <a href="#" class="flex flex-col items-center px-3 py-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-xs mt-1">我的</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 篩選側邊欄 -->
+    <div class="filter-overlay" id="filterOverlay">
+        <div class="filter-sidebar" id="filterSidebar">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold">篩選條件</h2>
+                <button id="closeFilter" class="p-2 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <!-- 工作類型 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">工作類型</h3>
+                    <div>
+                        <label class="checkbox-custom">
+                            <input type="checkbox" name="job_type" value="full_time">
+                            <span class="checkbox-indicator"></span>
+                            全職工作
+                        </label>
+                        <label class="checkbox-custom">
+                            <input type="checkbox" name="job_type" value="part_time">
+                            <span class="checkbox-indicator"></span>
+                            兼職工作
+                        </label>
+                        <label class="checkbox-custom">
+                            <input type="checkbox" name="job_type" value="contract">
+                            <span class="checkbox-indicator"></span>
+                            約聘人員
+                        </label>
+                        <label class="checkbox-custom">
+                            <input type="checkbox" name="job_type" value="remote">
+                            <span class="checkbox-indicator"></span>
+                            遠端工作
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 薪資範圍 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">薪資範圍</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-500">最低</span>
+                            <span class="text-sm text-gray-500">最高</span>
+                        </div>
+                        <div class="range-slider" id="salaryRange">
+                            <div class="range-progress" id="salaryProgress"></div>
+                            <div class="range-thumb" id="minSalaryThumb"></div>
+                            <div class="range-thumb" id="maxSalaryThumb"></div>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-sm font-medium" id="minSalaryValue">3萬</span>
+                            <span class="text-sm font-medium" id="maxSalaryValue">10萬+</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="filter-tag active">不限</span>
+                        <span class="filter-tag">3萬以上</span>
+                        <span class="filter-tag">4萬以上</span>
+                        <span class="filter-tag">5萬以上</span>
+                        <span class="filter-tag">6萬以上</span>
+                        <span class="filter-tag">8萬以上</span>
+                    </div>
+                </div>
+                
+                <!-- 工作經驗 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">工作經驗</h3>
+                    <div>
+                        <span class="filter-tag active">不限</span>
+                        <span class="filter-tag">1年以下</span>
+                        <span class="filter-tag">1-3年</span>
+                        <span class="filter-tag">3-5年</span>
+                        <span class="filter-tag">5-10年</span>
+                        <span class="filter-tag">10年以上</span>
+                    </div>
+                </div>
+                
+                <!-- 工作地點 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">工作地點</h3>
+                    
+                    <div class="location-accordion">
+                        <div class="location-header">
+                            <span class="font-medium">北部地區</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="location-content">
+                            <div class="p-3 grid grid-cols-3 gap-2">
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="taipei">
+                                    <span class="checkbox-indicator"></span>
+                                    台北市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="new_taipei">
+                                    <span class="checkbox-indicator"></span>
+                                    新北市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="keelung">
+                                    <span class="checkbox-indicator"></span>
+                                    基隆市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="taoyuan">
+                                    <span class="checkbox-indicator"></span>
+                                    桃園市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="hsinchu_city">
+                                    <span class="checkbox-indicator"></span>
+                                    新竹市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="hsinchu_county">
+                                    <span class="checkbox-indicator"></span>
+                                    新竹縣
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="location-accordion">
+                        <div class="location-header">
+                            <span class="font-medium">中部地區</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="location-content">
+                            <div class="p-3 grid grid-cols-3 gap-2">
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="miaoli">
+                                    <span class="checkbox-indicator"></span>
+                                    苗栗縣
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="taichung">
+                                    <span class="checkbox-indicator"></span>
+                                    台中市
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="changhua">
+                                    <span class="checkbox-indicator"></span>
+                                    彰化縣
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="nantou">
+                                    <span class="checkbox-indicator"></span>
+                                    南投縣
+                                </label>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" name="location" value="yunlin">
+                                    <span class="checkbox-indicator"></span>
+                                    雲林縣
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 其他福利條件 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">福利條件</h3>
+                    <div>
+                        <span class="filter-tag">週休二日</span>
+                        <span class="filter-tag">彈性上下班</span>
+                        <span class="filter-tag">年終獎金</span>
+                        <span class="filter-tag">三節獎金</span>
+                        <span class="filter-tag">員工旅遊</span>
+                        <span class="filter-tag">教育訓練</span>
+                        <span class="filter-tag">健康檢查</span>
+                        <span class="filter-tag">零經驗可</span>
+                        <span class="filter-tag">有升遷機會</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-8">
+                    <button class="flex-1 py-3 bg-gray-200 text-gray-600 rounded-lg font-medium">
+                        重設條件
+                    </button>
+                    <button class="flex-1 py-3 bg-blue-600 text-white rounded-lg font-medium">
+                        套用篩選
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const filterOverlay = document.getElementById('filterOverlay');
+        const filterSidebar = document.getElementById('filterSidebar');
+        const filterButton = document.querySelector('button.bg-blue-50.text-blue-600');
+        const closeFilterButton = document.getElementById('closeFilter');
+        const searchInput = document.querySelector('input[placeholder="搜尋職位、公司或關鍵字"]');
+        const filterTags = document.querySelectorAll('.filter-tag');
+        const locationHeaders = document.querySelectorAll('.location-header');
+        
+        // 篩選側邊欄開關
+        filterButton.addEventListener('click', function() {
+            filterOverlay.style.display = 'block';
+            setTimeout(() => {
+                filterSidebar.classList.add('open');
+            }, 10);
+        });
+        
+        function closeFilter() {
+            filterSidebar.classList.remove('open');
+            setTimeout(() => {
+                filterOverlay.style.display = 'none';
+            }, 300);
+        }
+        
+        closeFilterButton.addEventListener('click', closeFilter);
+        filterOverlay.addEventListener('click', function(e) {
+            if (e.target === filterOverlay) {
+                closeFilter();
+            }
+        });
+        
+        // 篩選標籤選擇
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                // 如果是在同一組中（如果有同組，則可以添加特定的處理）
+                const parent = this.parentElement;
+                const isGroup = parent.querySelector('.filter-tag.active');
+                
+                if (isGroup) {
+                    parent.querySelectorAll('.filter-tag').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                }
+                
+                this.classList.toggle('active');
+            });
+        });
+        
+        // 地區手風琴效果
+        locationHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                content.classList.toggle('open');
+                
+                // 更新箭頭方向
+                const arrow = this.querySelector('svg');
+                if (content.classList.contains('open')) {
+                    arrow.style.transform = 'rotate(180deg)';
+                } else {
+                    arrow.style.transform = 'rotate(0)';
+                }
+            });
+        });
+        
+        // 搜尋建議功能
+        let searchSuggestions;
+        
+        searchInput.addEventListener('focus', function() {
+            // 如果還沒有創建建議區域，則創建
+            if (!searchSuggestions) {
+                searchSuggestions = document.createElement('div');
+                searchSuggestions.className = 'search-suggestions';
+                this.parentNode.appendChild(searchSuggestions);
+                
+                // 添加一些建議項
+                const suggestions = [
+                    '行政人員', '業務專員', '會計人員', '人資專員', 
+                    '顧客服務', '資訊工程師', '行銷企劃', '專案經理'
+                ];
+                
+                suggestions.forEach(item => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'suggestion-item';
+                    suggestionItem.textContent = item;
+                    
+                    suggestionItem.addEventListener('click', function() {
+                        searchInput.value = this.textContent;
+                        searchSuggestions.classList.remove('active');
+                    });
+                    
+                    searchSuggestions.appendChild(suggestionItem);
+                });
+            }
+            
+            searchSuggestions.classList.add('active');
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            // 延遲關閉，允許點擊建議項
+            setTimeout(() => {
+                if (searchSuggestions) {
+                    searchSuggestions.classList.remove('active');
+                }
+            }, 150);
+        });
+        
+        // 模擬滑動選擇器
+        const salaryRange = document.getElementById('salaryRange');
+        const salaryProgress = document.getElementById('salaryProgress');
+        const minSalaryThumb = document.getElementById('minSalaryThumb');
+        const maxSalaryThumb = document.getElementById('maxSalaryThumb');
+        const minSalaryValue = document.getElementById('minSalaryValue');
+        const maxSalaryValue = document.getElementById('maxSalaryValue');
+        
+        // 假設薪資範圍 3萬-10萬+
+        const minSalary = 3;
+        const maxSalary = 10;
+        let currentMinSalary = 3;
+        let currentMaxSalary = 10;
+        
+        // 初始化薪資滑塊位置
+        function updateSalarySlider() {
+            const rangeWidth = salaryRange.offsetWidth;
+            const minPosition = ((currentMinSalary - minSalary) / (maxSalary - minSalary)) * rangeWidth;
+            const maxPosition = ((currentMaxSalary - minSalary) / (maxSalary - minSalary)) * rangeWidth;
+            
+            minSalaryThumb.style.left = `${minPosition}px`;
+            maxSalaryThumb.style.left = `${maxPosition}px`;
+            salaryProgress.style.left = `${minPosition}px`;
+            salaryProgress.style.width = `${maxPosition - minPosition}px`;
+            
+            minSalaryValue.textContent = `${currentMinSalary}萬`;
+            maxSalaryValue.textContent = currentMaxSalary === maxSalary ? `${currentMaxSalary}萬+` : `${currentMaxSalary}萬`;
+        }
+        
+        updateSalarySlider();
+        
+        // 實現簡單的拖動效果
+        let isDragging = false;
+        let currentThumb = null;
+        
+        minSalaryThumb.addEventListener('mousedown', startDrag);
+        maxSalaryThumb.addEventListener('mousedown', startDrag);
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            currentThumb = this;
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const rangeRect = salaryRange.getBoundingClientRect();
+            const rangeWidth = rangeRect.width;
+            let position = e.clientX - rangeRect.left;
+            
+            // 限制範圍
+            position = Math.max(0, Math.min(position, rangeWidth));
+            
+            // 計算薪資值
+            const salaryValue = Math.round(((position / rangeWidth) * (maxSalary - minSalary) + minSalary) * 10) / 10;
+            
+            if (currentThumb === minSalaryThumb) {
+                // 確保最小值不超過最大值
+                currentMinSalary = Math.min(salaryValue, currentMaxSalary - 0.5);
+            } else {
+                // 確保最大值不低於最小值
+                currentMaxSalary = Math.max(salaryValue, currentMinSalary + 0.5);
+            }
+            
+            updateSalarySlider();
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+        
+        // 熱門職業類別點擊效果
+        const categoryItems = document.querySelectorAll('.grid-cols-4 > div');
+        categoryItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // 模擬點擊效果
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+        
+        // 底部導航點擊效果
+        const navItems = document.querySelectorAll('footer a');
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                navItems.forEach(nav => {
+                    nav.classList.remove('text-blue-600');
+                    nav.classList.add('text-gray-500');
+                });
+                this.classList.remove('text-gray-500');
+                this.classList.add('text-blue-600');
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中高齡人才平台 - 應聘者管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #333;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-applied {
+            background-color: #E0F2FE;
+            color: #0369A1;
+        }
+        
+        .status-reviewed {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-interviewing {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        
+        .status-offered {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .status-rejected {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .tab-button {
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .tab-button.active {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        
+        .tab-button.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #3b82f6;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .candidate-card {
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .candidate-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="max-w-lg mx-auto bg-white min-h-screen">
+        <!-- 頂部導航 -->
+        <header class="sticky top-0 z-10 bg-white shadow-sm">
+            <div class="flex items-center p-4 border-b">
+                <h1 class="text-xl font-bold flex-1">應聘者管理</h1>
+                <div class="flex items-center">
+                    <button class="p-2 rounded-full hover:bg-gray-100 mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 職位選擇 -->
+            <div class="p-4 border-b">
+                <select class="w-full py-2 px-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">所有職位</option>
+                    <option value="job1">資深專案經理</option>
+                    <option value="job2">行銷企劃經理</option>
+                    <option value="job3">資深軟體工程師</option>
+                    <option value="job4">人資專員</option>
+                    <option value="job5">財務會計主管</option>
+                </select>
+            </div>
+            
+            <!-- 分類標籤 -->
+            <div class="flex overflow-x-auto scrollbar-hide border-b">
+                <button class="tab-button active flex-1 py-3 px-2 text-center font-medium focus:outline-none">
+                    全部 <span class="text-gray-500 ml-1">（24）</span>
+                </button>
+                <button class="tab-button flex-1 py-3 px-2 text-center font-medium text-gray-500 focus:outline-none">
+                    待審核 <span class="ml-1">（8）</span>
+                </button>
+                <button class="tab-button flex-1 py-3 px-2 text-center font-medium text-gray-500 focus:outline-none">
+                    面試中 <span class="ml-1">（5）</span>
+                </button>
+                <button class="tab-button flex-1 py-3 px-2 text-center font-medium text-gray-500 focus:outline-none">
+                    已完成 <span class="ml-1">（11）</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主要內容 -->
+        <main class="p-4 pb-24">
+            <!-- 批量操作 -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center">
+                    <label class="inline-flex items-center mr-2">
+                        <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    </label>
+                    <span class="text-sm text-gray-600">全選</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="py-1.5 px-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        批量操作
+                    </button>
+                    <button class="py-1.5 px-3 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                        篩選
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 應聘者列表 -->
+            <div class="space-y-4">
+                <!-- 應聘者1 -->
+                <div class="candidate-card bg-white border border-gray-200 p-4">
+                    <div class="flex items-start">
+                        <input type="checkbox" class="w-5 h-5 mt-1 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">張小明</h3>
+                                    <p class="text-gray-600 text-sm">資深專案經理</p>
+                                </div>
+                                <span class="status-badge status-interviewing">面試中</span>
+                            </div>
+                            <div class="mb-2">
+                                <p class="text-sm text-gray-600 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                    45歲・15年工作經驗
+                                </p>
+                                <p class="text-sm text-gray-600 flex items-center mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    台北市・願意遠端工作
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">專案管理</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">團隊領導</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">溝通協調</span>
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                應徵日期：2023/10/15・預約面試：2023/10/25 14:30
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="py-1.5 px-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                    發送訊息
+                                </button>
+                                <div class="flex space-x-2">
+                                    <button class="py-1.5 px-3 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                                        查看詳情
+                                    </button>
+                                    <button class="py-1.5 px-3 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+                                        錄取
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 應聘者2 -->
+                <div class="candidate-card bg-white border border-gray-200 p-4">
+                    <div class="flex items-start">
+                        <input type="checkbox" class="w-5 h-5 mt-1 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">李大華</h3>
+                                    <p class="text-gray-600 text-sm">資深軟體工程師</p>
+                                </div>
+                                <span class="status-badge status-reviewed">待審核</span>
+                            </div>
+                            <div class="mb-2">
+                                <p class="text-sm text-gray-600 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                    52歲・20年工作經驗
+                                </p>
+                                <p class="text-sm text-gray-600 flex items-center mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    新北市・僅限辦公室工作
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">Java</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">Spring</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">MySQL</span>
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                應徵日期：2023/10/17
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="py-1.5 px-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                    發送訊息
+                                </button>
+                                <div class="flex space-x-2">
+                                    <button class="py-1.5 px-3 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                                        查看詳情
+                                    </button>
+                                    <button class="py-1.5 px-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                                        邀請面試
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 應聘者3 -->
+                <div class="candidate-card bg-white border border-gray-200 p-4">
+                    <div class="flex items-start">
+                        <input type="checkbox" class="w-5 h-5 mt-1 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">陳美玲</h3>
+                                    <p class="text-gray-600 text-sm">行銷企劃經理</p>
+                                </div>
+                                <span class="status-badge status-offered">已錄取</span>
+                            </div>
+                            <div class="mb-2">
+                                <p class="text-sm text-gray-600 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                    48歲・18年工作經驗
+                                </p>
+                                <p class="text-sm text-gray-600 flex items-center mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    台北市・混合辦公
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">品牌管理</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">數位行銷</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">市場分析</span>
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                應徵日期：2023/10/10・錄取日期：2023/10/22
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="py-1.5 px-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                    發送訊息
+                                </button>
+                                <button class="py-1.5 px-3 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                                    查看詳情
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 應聘者4 -->
+                <div class="candidate-card bg-white border border-gray-200 p-4">
+                    <div class="flex items-start">
+                        <input type="checkbox" class="w-5 h-5 mt-1 mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg">王志遠</h3>
+                                    <p class="text-gray-600 text-sm">財務會計主管</p>
+                                </div>
+                                <span class="status-badge status-rejected">已拒絕</span>
+                            </div>
+                            <div class="mb-2">
+                                <p class="text-sm text-gray-600 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                    56歲・25年工作經驗
+                                </p>
+                                <p class="text-sm text-gray-600 flex items-center mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    台北市・僅限辦公室工作
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">財務報表</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">稅務規劃</span>
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">成本控制</span>
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                應徵日期：2023/10/08・拒絕日期：2023/10/18
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="py-1.5 px-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                    發送訊息
+                                </button>
+                                <button class="py-1.5 px-3 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                                    查看詳情
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 分頁 -->
+            <div class="flex justify-center mt-6">
+                <nav class="flex items-center">
+                    <button class="p-2 border rounded-l-lg hover:bg-gray-50 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button class="py-2 px-4 border-t border-b bg-blue-50 text-blue-600 font-medium">1</button>
+                    <button class="py-2 px-4 border-t border-b hover:bg-gray-50">2</button>
+                    <button class="py-2 px-4 border-t border-b hover:bg-gray-50">3</button>
+                    <button class="p-2 border rounded-r-lg hover:bg-gray-50 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </nav>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 分類標籤切換
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.add('text-gray-500');
+                });
+                this.classList.add('active');
+                this.classList.remove('text-gray-500');
+                // 這裡可以添加標籤內容切換的邏輯
+            });
+        });
+        
+        // 全選功能
+        const selectAllCheckbox = document.querySelector('input[type="checkbox"]');
+        const candidateCheckboxes = document.querySelectorAll('.candidate-card input[type="checkbox"]');
+        
+        selectAllCheckbox.addEventListener('change', function() {
+            candidateCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+        
+        // 篩選按鈕
+        const filterButton = document.querySelector('.bg-blue-50.text-blue-600');
+        filterButton.addEventListener('click', function() {
+            alert('打開篩選選項');
+            // 這裡可以添加打開篩選選項的邏輯
+        });
+        
+        // 批量操作按鈕
+        const batchButton = document.querySelector('.bg-white.border.border-gray-300');
+        batchButton.addEventListener('click', function() {
+            alert('打開批量操作選項');
+            // 這裡可以添加批量操作的邏輯
+        });
+    </script>
+</body>
+</html> 
